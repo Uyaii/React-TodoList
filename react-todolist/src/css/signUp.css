@@ -1,0 +1,45 @@
+:root {
+  background-color: pink;
+}
+.form {
+  background-color: rgb(147, 147, 250);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  padding: 2rem 1rem;
+  width: 450px;
+  height: auto;
+  border-radius: 40px;
+}
+.form input {
+  width: 70%;
+  margin: 0.5rem;
+  height: 25px;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  padding: 0.2rem;
+}
+.form input:active,
+.form input:focus{
+  outline: 2px soild pink;
+  
+}
+.form button {
+  height: 30px;
+  width: 100px;
+  margin: 2rem;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.form button:hover {
+  cursor: pointer;
+  transform: scale(1.2);
+  background-color: pink;
+
+  transition: all 0.2s ease-in-out;
+}
