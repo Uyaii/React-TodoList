@@ -4,14 +4,14 @@ import mongoose from "mongoose";
 import User from "../models/newUser.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv"
-
+import dotenv from "dotenv";
 
 const app = express();
 app.use(express.json());
+dotenv.config();
 app.use(cors());
-dotenv.config()
-const jwtToken = process.env.JWT
+const jwtToken = process.env.JWT_SECRET;
+const mongodbURI = process.env.mongodbURI;
 const PORT = process.env.PORT || 3000;
 
 // * LANDING ROUTE
@@ -21,9 +21,7 @@ app.get("/api/landing", (request, response) => {
 
 // ! MONGODB CONNECTION
 mongoose
-  .connect(
-    "mongodb+srv://maryanneinyang:ndifreke_12383@cluster0.ubrui.mongodb.net/Users?retryWrites=true&w=majority&appName=Cluster0"
-  )
+  .connect(mongodbURI)
   .then(() => console.log("Mongodb connected!"))
   .catch((error) => console.log(error));
 
@@ -66,10 +64,9 @@ app.post("/api/signup", async (request, response) => {
 });
 
 //! LOGIN ROUTE
-app.get("/api/login/", async (response, request) => {
+app.post("/api/login", async (request, response) => {
+  const { email, password } = request.body;
   try {
-    const { email, password } = request.body;
-
     // * Make sure all fields are filled
     if (!email || !password) {
       return response.status(400).send({ message: "Please fill all fields!" });
@@ -81,8 +78,27 @@ app.get("/api/login/", async (response, request) => {
     }
 
     //* Comparing passwords
-    const isMatch = await bcrypt.compare(password, user.password)
-  } catch (error) {}
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return response.status(400).send({ message: "Invalid credentials" });
+    }
+    //* Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, fullname: user.fullname },
+      jwtToken,
+      { expiresIn: "1h" }
+    );
+
+    //* send the token and user data back in the response
+    response.status(200).send({
+      message: "Login Successful!",
+      token,
+      user: { fullname: user.fullname, email: user.email },
+    });
+  } catch (error) {
+    console.log(error.message);
+    response.status(500).send({ message: error.message });
+  }
 });
 app.listen(PORT, () => {
   console.log(`running on port: ${PORT}`);
