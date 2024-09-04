@@ -9,11 +9,11 @@ const Home = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     setUser(storedUser);
   }, []);
-
+ 
   return (
     <div>
       {user ? (
-        <h1>Welcome, {user.fullname}!</h1>
+        <h1>Welcome, {user.username}!</h1>
       ) : (
         <h1>Welcome to the Home Page!</h1>
       )}

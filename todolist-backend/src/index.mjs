@@ -5,6 +5,7 @@ import User from "../models/newUser.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import Task from "../models/task.mjs"
 
 const app = express();
 app.use(express.json());
@@ -18,7 +19,23 @@ const PORT = process.env.PORT || 3000;
 app.get("/api/landing", (request, response) => {
   response.json({ message: "landed safely!1" });
 });
+//! MIDDDLEWARE TO AUTHENTICATE THE JWT TOKEN FOR PROTECTED ROUTES ONLY!
+const authenticateToken = (request, response, next) => {
+  const token = req.header("Authorization")?.split(" ")[1];
 
+  if (!token)
+    return response
+      .status(401)
+      .send({ message: "Access Denied! No Token Provided" });
+
+  try {
+    const decoded = jwt.verify(token, jwtToken);
+    request.user = decoded;
+    next();
+  } catch (error) {
+    res.status(400).send({ message: "Invalid token" });
+  }
+};
 // ! MONGODB CONNECTION
 mongoose
   .connect(mongodbURI)
@@ -56,7 +73,7 @@ app.post("/api/signup", async (request, response) => {
 
     response
       .status(201)
-      .send({ message: "New User Created!", user: { fullname } });
+      .send({ message: "New User Created!", user: { username } });
   } catch (error) {
     console.log(error.message);
     response.status(500).send({ message: error.message });
@@ -82,22 +99,45 @@ app.post("/api/login", async (request, response) => {
     if (!isMatch) {
       return response.status(400).send({ message: "Invalid credentials" });
     }
+
     //* Generate JWT token
     const token = jwt.sign(
-      { userId: user._id, fullname: user.fullname },
-      jwtToken,
-      { expiresIn: "1h" }
+      { userId: user._id, username: user.username },
+      jwtToken
+      // { expiresIn: "1h" }
     );
 
     //* send the token and user data back in the response
     response.status(200).send({
       message: "Login Successful!",
       token,
-      user: { fullname: user.fullname, email: user.email },
+      user: {
+        fullname: user.fullname,
+        username: user.username,
+        email: user.email,
+      },
     });
   } catch (error) {
     console.log(error.message);
     response.status(500).send({ message: error.message });
+  }
+});
+
+// ! GET CURRENT USER TASKS (PROTECTED ROUTE!)
+app.get("/api/tasks", authenticateToken, async (request, response) => {
+  try {
+    const userId = request.user.userId; //get userid from the decoded jwt
+
+    //find tasks that belong to the authenticated user
+    const tasks = await Task.find({ userId });
+
+    if (!tasks) {
+      return response.status(404).send({message: "No Tasks Yet!"})
+    }
+
+    response.status(200).send(tasks)
+  } catch (error) {
+    res.status(500).send({message: "Error fetching tasks!"})
   }
 });
 app.listen(PORT, () => {
