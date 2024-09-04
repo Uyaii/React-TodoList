@@ -5,7 +5,7 @@ import User from "../models/newUser.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import Task from "../models/task.mjs"
+import Task from "../models/task.mjs";
 
 const app = express();
 app.use(express.json());
@@ -21,7 +21,7 @@ app.get("/api/landing", (request, response) => {
 });
 //! MIDDDLEWARE TO AUTHENTICATE THE JWT TOKEN FOR PROTECTED ROUTES ONLY!
 const authenticateToken = (request, response, next) => {
-  const token = req.header("Authorization")?.split(" ")[1];
+  const token = request.header("Authorization")?.split(" ")[1];
 
   if (!token)
     return response
@@ -132,12 +132,12 @@ app.get("/api/tasks", authenticateToken, async (request, response) => {
     const tasks = await Task.find({ userId });
 
     if (!tasks) {
-      return response.status(404).send({message: "No Tasks Yet!"})
+      return response.status(404).send({ message: "No Tasks Yet!" });
     }
 
-    response.status(200).send(tasks)
+    response.status(200).send(tasks);
   } catch (error) {
-    res.status(500).send({message: "Error fetching tasks!"})
+    response.status(500).send({ message: "Error fetching tasks!" });
   }
 });
 app.listen(PORT, () => {
