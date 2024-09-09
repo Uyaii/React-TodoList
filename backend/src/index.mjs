@@ -139,6 +139,7 @@ app.get("/api/tasks", authenticateToken, async (request, response) => {
     }
 
     response.status(200).send({ tasks });
+    //console.log(request);
   } catch (error) {
     response.status(500).send({ message: "Error fetching tasks!" });
   }
@@ -166,6 +167,26 @@ app.post("/api/addtask", authenticateToken, async (request, response) => {
 
     await newTask.save();
     response.status(201).send({ message: "New Task Created!" });
+  } catch (error) {
+    console.log(error.message);
+    response.status(500).send({ message: error.message });
+  }
+});
+
+// ! DELETE TASK (PROTECTED ROUTE)
+app.delete("/api/task/:id", authenticateToken, async (request, response) => {
+  try {
+    const { id } = request.params;
+    const userId = request.user.userId;
+
+    //* Find and delete the task
+    const deletedTask = await Task.findOneAndDelete({ _id: id, userId });
+
+    if (!deletedTask) {
+      return response.status(404).send({ message: "Task not found!" });
+    }
+
+    response.status(200).send({ message: "Task Deleted Successfully" });
   } catch (error) {
     console.log(error.message);
     response.status(500).send({ message: error.message });

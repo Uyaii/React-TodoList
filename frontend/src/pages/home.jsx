@@ -38,6 +38,7 @@ const Home = () => {
         config
       );
       setTasks(response.data.tasks);
+      console.log(response);
     } catch (error) {
       console.error("Error fetching tasks:", error);
       if (
@@ -142,7 +143,7 @@ const Home = () => {
                 {tasks.length > 0 && (
                   <>
                     <h3>Here are your tasks:</h3>
-                    <TasksList tasks={tasks} />
+                    <TasksList tasks={tasks} fetchTasks={fetchTasks} />
                   </>
                 )}
               </>
