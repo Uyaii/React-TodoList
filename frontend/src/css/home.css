@@ -1,0 +1,188 @@
+.task-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.task-container form {
+  width: 100%;
+}
+.task-container input {
+  margin: 1rem;
+  width: 65%;
+  height: 40px;
+  border: none;
+  padding: 0.2rem;
+  border-radius: 10px;
+}
+
+.task-container input:focus,
+.task-container input:active,
+.modal-content textarea:focus {
+  outline: 5px solid rgb(252, 85, 112);
+}
+
+.task-container button {
+  margin: 1rem;
+  width: 100px;
+  height: 40px;
+  background-color: white;
+  border: none;
+  border-radius: 0;
+  font-size: 20px;
+}
+.task-container .addTaskBtn {
+  width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.task-container button:hover {
+  border-radius: 20px;
+  cursor: pointer;
+  /* background-color:  rgb(119, 119, 252);; */
+  outline: 5px solid rgb(252, 85, 112);
+  transition: all 0.2s ease-in;
+}
+
+.modal {
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  z-index: 1000; /* Ensure it sits above other elements */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Black background with transparency */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: visibility 0s, opacity 0.3s ease-in-out; /* Smooth transition */
+}
+.modal.show {
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s, opacity 0.3s ease-in-out; /* Smooth transition */
+}
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  background-color: burlywood;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* This is the width you can adjust */
+  max-width: 500px; /* Maximum width, so it doesn't get too wide */
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Adds a nice shadow */
+  position: relative; /* Allows you to position child elements like close button */
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: black;
+}
+
+.closeModal {
+  align-self: flex-end;
+  font-size: 30px;
+}
+.closeModal:hover {
+  cursor: pointer;
+  color: red;
+}
+
+.modal-content .modalAddButton {
+  font-family: "Cascadia Code";
+  font-size: 15px;
+}
+.modal-content textarea {
+  height: 200px;
+  width: 300px;
+  border: none;
+}
+.tasks {
+  height: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Creates two equal columns */
+  gap: 1rem; /* Space between the tasks */
+  justify-content: center;
+  width: 100%;
+}
+
+.tasks li {
+  width: 80%;
+  max-width: 400px;
+  min-width: 200px;
+  margin: 1rem;
+  background-color: wheat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Adds a nice shadow */
+  position: relative; /* Allows positioning of the tape */
+  border-radius: 15px; /* Rounded corners for a soft look */
+  padding: 1rem; /* Padding inside the task */
+}
+
+/* Slanted tape effect on top left */
+.tasks li::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: -35px;
+  width: 100px;
+  height: 30px;
+  background-color: #93a5e2;
+  transform: rotate(-45deg);
+  z-index: 1;
+}
+
+.tasks .complete {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-self: flex-start;
+}
+
+.tasks li .modifyTask {
+  width: 100%;
+}
+.editTask,
+.deleteTask {
+  font-size: 25px;
+  margin: 0.5rem;
+}
+.editTask {
+  color: green;
+}
+.deleteTask {
+  color: red;
+}
+
+.editTask:hover,
+.deleteTask:hover {
+  cursor: pointer;
+  transform: scale(1.6);
+  transition: transform 0.2s ease-in-out;
+}
+.tasks .complete {
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.complete p {
+  width: auto;
+}
+.complete input {
+  width: 30px;
+  height: 30px;
+  justify-self: flex-start;
+}
