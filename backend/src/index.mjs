@@ -156,7 +156,15 @@ app.post("/api/addtask", authenticateToken, async (request, response) => {
       return response
         .status(400)
         .send({ message: "Please fill all required fields" });
+    const tasks = await Task.find({ userId });
 
+    //* Checking for duplicate tasks
+    const duplicateTask = tasks.find(
+      (task) => task.title === title && task.description === description
+    );
+    if (duplicateTask) {
+      return response.status(400).send({ message: "Duplicate Task!" });
+    }
     // * Save new task
     const newTask = new Task({
       title,
@@ -170,6 +178,37 @@ app.post("/api/addtask", authenticateToken, async (request, response) => {
   } catch (error) {
     console.log(error.message);
     response.status(500).send({ message: error.message });
+  }
+});
+
+// ! EDIT TASK (PROTECTED ROUTE)
+app.put("/api/task/:id", authenticateToken, async (request, response) => {
+  try {
+    const { id } = request.params;
+    const { title, description, completed } = request.body;
+    const userId = request.user.userId;
+
+    if (!title || !description) {
+      return response.status(400).send({ message: "Please fill all fields!" });
+    }
+
+    // * Find and update the task
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: id, userId },
+      { title, description, completed },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return response.status(404).send({ message: "Task not found!" });
+    }
+
+    response
+      .status(200)
+      .send({ message: "Task Updated Successfully!", task: updatedTask });
+  } catch (error) {
+    console.log(error.message);
+    response.status(500).send({ message: "Error updating task!" });
   }
 });
 

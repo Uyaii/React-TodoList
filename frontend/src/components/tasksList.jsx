@@ -1,10 +1,23 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable no-empty */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { RiEdit2Fill } from "react-icons/ri";
-import { MdOutlineDelete } from "react-icons/md";
+
 import axios from "axios";
-const TasksList = ({ tasks, fetchTasks }) => {
+import { useEffect, useState } from "react";
+import TaskItem from "./taskItem";
+
+const TasksList = ({
+  tasks,
+  fetchTasks,
+  showModal,
+  setShowModal,
+  triggerModal,
+  message,
+  setMessage,
+  triggerEditModal,
+  setTasks,
+}) => {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -18,27 +31,18 @@ const TasksList = ({ tasks, fetchTasks }) => {
       console.error("Error deleting task", error);
     }
   };
+ //tasks.map((task) => return task)
+
   return (
     <ul className="tasks">
       {tasks.map((task) => (
-        <li key={task._id}>
-          <h3>{task.title}</h3>
-          <p>Todo: {task.description}</p>
-
-          <p>Status: {task.completed ? "Completed" : "Pending"}</p>
-          <span className="complete">
-            <p>Done?:</p>
-            <input type="checkbox" value={task.completed} />
-          </span>
-
-          <span className="modifyTask">
-            <RiEdit2Fill className="editTask" />
-            <MdOutlineDelete
-              className="deleteTask"
-              onClick={() => handleDelete(task._id)}
-            />
-          </span>
-        </li>
+        <TaskItem
+          key={task._id}
+          task={task}
+          triggerEditModal={triggerEditModal}
+          handleDelete={handleDelete}
+          fetchTasks={fetchTasks}
+        />
       ))}
     </ul>
   );

@@ -23,23 +23,21 @@
   outline: 5px solid rgb(252, 85, 112);
 }
 
-.task-container button {
-  margin: 1rem;
-  width: 100px;
+.task-container button,
+.addTaskBtn,
+.logoutBtn,
+.modalAddButton {
+  margin: 0.5rem;
+  width: 50px;
   height: 40px;
   background-color: white;
   border: none;
-  border-radius: 0;
+  border-radius: 10px;
   font-size: 20px;
 }
-.task-container .addTaskBtn {
-  width: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.task-container button:hover {
-  border-radius: 20px;
+
+.task-container button:hover,
+.logoutBtn:hover {
   cursor: pointer;
   /* background-color:  rgb(119, 119, 252);; */
   outline: 5px solid rgb(252, 85, 112);
@@ -69,6 +67,8 @@
 .modal-content {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background-color: burlywood;
   padding: 20px;
   border: 1px solid #888;
@@ -99,6 +99,8 @@
 .modal-content .modalAddButton {
   font-family: "Cascadia Code";
   font-size: 15px;
+  margin: 1rem;
+  width: 100px;
 }
 .modal-content textarea {
   height: 200px;
@@ -135,10 +137,10 @@
   content: "";
   position: absolute;
   top: 1px;
-  left: -35px;
+  left: -39px;
   width: 100px;
   height: 30px;
-  background-color: #93a5e2;
+  background-color: rgba(147, 165, 226, 0.658);
   transform: rotate(-45deg);
   z-index: 1;
 }
@@ -186,3 +188,19 @@
   height: 30px;
   justify-self: flex-start;
 }
+
+.message.task {
+  height: 40px;
+  width: 80%;
+  background-color: rgb(238, 84, 84);
+}
+
+/* .logoutBtn {
+  margin: 1rem;
+  width: 50px;
+  height: 40px;
+  background-color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 17px;
+} */

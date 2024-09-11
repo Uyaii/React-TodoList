@@ -7,6 +7,9 @@ import "../css/home.css";
 import { BsFillSearchHeartFill } from "react-icons/bs";
 import { CgAdd } from "react-icons/cg";
 import TaskModal from "../components/taskModal";
+import EditTaskModal from "../components/editTaskModal";
+import LogoutBtn from "../components/logoutBtn";
+import Tooltip from "@mui/material/Tooltip";
 
 const Home = () => {
   const [user, setUser] = useState(null);
@@ -17,6 +20,8 @@ const Home = () => {
     title: "",
     description: "",
   });
+  //const [editModal, setEditModal] = useState(false);
+  const [isErrorMsg, setIsErrorMsg] = useState(false);
   const navigate = useNavigate();
 
   //*  getting username
@@ -88,17 +93,25 @@ const Home = () => {
       );
 
       const backendMsg = response.data.message;
+      console.log(backendMsg);
       if (backendMsg === "New Task Created!") {
         setMessage(backendMsg);
+        setIsErrorMsg(false);
         setAddForm({ title: "", description: "" }); // Reset the form
         await fetchTasks(); // Fetch tasks again to update the list
         setShowModal(false); // Close the modal
-        console.log(message);
+        //console.log(message);
+      } else if (backendMsg === "Duplicate task!") {
+        setMessage(backendMsg);
+        console.log(backendMsg);
+
+        setAddForm({ title: "", description: "" });
       } else {
         setMessage(backendMsg);
       }
     } catch (error) {
       console.error("Error adding task:", error);
+      setIsErrorMsg(true);
 
       if (
         error.response &&
@@ -111,25 +124,91 @@ const Home = () => {
       }
     }
   };
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage("");
+      }, 1000); // 1 second
 
+      return () => clearTimeout(timer); // Clean up the timer on component unmount or when the message changes
+    }
+  }, [message]);
+
+  // * Edit logic
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+  });
+  const [editTaskId, setEditTaskId] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const triggerEditModal = (task) => {
+    setShowEditModal(!showEditModal);
+    setEditForm({ title: task.title, description: task.description });
+    setEditTaskId(task._id);
+  };
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(
+        `http://localhost:3000/api/task/${editTaskId}`,
+        editForm,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      const backendMsg = response.data.message;
+      if (backendMsg === "Task Updated Successfully!") {
+        setIsErrorMsg(false);
+        setMessage(backendMsg);
+        setEditForm({
+          title: "",
+          description: "",
+        });
+        await fetchTasks();
+        setShowEditModal(false);
+      }
+    } catch (error) {
+      setIsErrorMsg(true);
+      console.error("error updating task:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setMessage(error.response.data.message);
+      } else {
+        setMessage("An unexpected error occurred.");
+      }
+    }
+  };
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    // console.log(`Updating ${name} with value ${value}`);
+    setEditForm({ ...editForm, [name]: value });
+  };
   return (
     <>
       {user ? (
         <>
           <header>
             <h1>Welcome, {user.username}!</h1>
+            <LogoutBtn />
           </header>
           <div className="task-container">
             <form className="searchForm">
               <input type="text" placeholder="Search Tasks" />
-              <button>
-                <BsFillSearchHeartFill />
-              </button>
+              <Tooltip title="Search Tasks">
+                <button>
+                  <BsFillSearchHeartFill />
+                </button>
+              </Tooltip>
             </form>
-
-            <button className="addTaskBtn" onClick={triggerModal}>
-              Add Task <CgAdd />
-            </button>
+            <Tooltip title="Add New Task">
+              <button onClick={triggerModal} className="addTaskBtn">
+                <CgAdd />
+              </button>
+            </Tooltip>
             <TaskModal
               showModal={showModal}
               setShowModal={setShowModal}
@@ -137,18 +216,53 @@ const Home = () => {
               addForm={addForm}
               handleChange={handleChange}
               handleSubmit={handleSubmit}
+              message={message}
+              setMessage={setMessage}
+              isErrorMsg={isErrorMsg}
+              setIsErrorMsg={setIsErrorMsg}
             />
-            {tasks ? (
+            <EditTaskModal
+              showEditModal={showEditModal}
+              triggerEditModal={triggerEditModal}
+              editForm={editForm}
+              handleEditChange={handleEditChange}
+              handleEditSubmit={handleEditSubmit}
+              message={message}
+              setMessage={setMessage}
+              isErrorMsg={isErrorMsg}
+              setIsErrorMsg={setIsErrorMsg}
+            />
+            {tasks && (
               <>
-                {tasks.length > 0 && (
+                {tasks.length > 0 ? (
                   <>
                     <h3>Here are your tasks:</h3>
-                    <TasksList tasks={tasks} fetchTasks={fetchTasks} />
+                    <>
+                      {message && (
+                        <>
+                          {!isErrorMsg ? (
+                            <div className="message task">{message}</div>
+                          ) : null}
+                        </>
+                      )}
+                    </>
+
+                    <TasksList
+                      tasks={tasks}
+                      fetchTasks={fetchTasks}
+                      showModal={showModal}
+                      setShowModal={setShowModal}
+                      triggerModal={triggerModal}
+                      message={message}
+                      setMessage={setMessage}
+                      triggerEditModal={triggerEditModal}
+                      setTasks={setTasks}
+                    />
                   </>
+                ) : (
+                  <p>No tasks yet </p>
                 )}
               </>
-            ) : (
-              <p>No tasks yet </p>
             )}
           </div>
         </>
